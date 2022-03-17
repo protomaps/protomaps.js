@@ -93,7 +93,7 @@ const leafletLayer = (options: any): any => {
         16,
         this.onTilesInvalidated
       );
-      this.tile_size = 256 * window.devicePixelRatio;
+      this.tile_size = 257 * window.devicePixelRatio;
       this.tileDelay = options.tileDelay || 3;
       this.lang = options.lang;
 
@@ -162,18 +162,18 @@ const leafletLayer = (options: any): any => {
         maxX: 256 * (coords.x + 1) + BUF,
         maxY: 256 * (coords.y + 1) + BUF,
       };
-      let origin = new Point(256 * coords.x, 256 * coords.y);
+      let origin = new Point(256 * coords.x + 0.5, 256 * coords.y + 0.5);
 
       element.width = this.tile_size;
       element.height = this.tile_size;
       let ctx = element.getContext("2d");
-      ctx.setTransform(this.tile_size / 256, 0, 0, this.tile_size / 256, 0, 0);
-      ctx.clearRect(0, 0, 256, 256);
+      ctx.setTransform(this.tile_size / 257, 0, 0, this.tile_size / 257, 0, 0);
+      ctx.clearRect(0, 0, 257, 257);
 
       if (this.backgroundColor) {
         ctx.save();
         ctx.fillStyle = this.backgroundColor;
-        ctx.fillRect(0, 0, 256, 256);
+        ctx.fillRect(0, 0, 257, 257);
         ctx.restore();
       }
 
