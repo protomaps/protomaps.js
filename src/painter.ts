@@ -29,116 +29,116 @@ export interface XraySelection {
   dataLayer: string;
 }
 
-let xray_symbolizers = (
-  dataSource: string,
-  dataLayer: string,
-  color: string
-): Rule[] => {
-  return [
-    {
-      dataSource: dataSource,
-      dataLayer: dataLayer,
-      symbolizer: new CircleSymbolizer({
-        opacity: 0.7,
-        fill: color,
-        radius: 4,
-      }),
-      filter: (z, f) => {
-        return f.geomType == GeomType.Point;
-      },
-    },
-    {
-      dataSource: dataSource,
-      dataLayer: dataLayer,
-      symbolizer: new LineSymbolizer({
-        opacity: 0.5,
-        color: color,
-        width: 2,
-      }),
-      filter: (z, f) => {
-        return f.geomType == GeomType.Line;
-      },
-    },
-    {
-      dataSource: dataSource,
-      dataLayer: dataLayer,
-      symbolizer: new PolygonSymbolizer({
-        opacity: 0.5,
-        fill: color,
-        stroke: color,
-        width: 1,
-      }),
-      filter: (z, f) => {
-        return f.geomType == GeomType.Polygon;
-      },
-    },
-  ];
-};
+// let xray_symbolizers = (
+//   dataSource: string,
+//   dataLayer: string,
+//   color: string
+// ): Rule[] => {
+//   return [
+//     {
+//       dataSource: dataSource,
+//       dataLayer: dataLayer,
+//       symbolizer: new CircleSymbolizer({
+//         opacity: 0.7,
+//         fill: color,
+//         radius: 4,
+//       }),
+//       filter: (z, f) => {
+//         return f.geomType == GeomType.Point;
+//       },
+//     },
+//     {
+//       dataSource: dataSource,
+//       dataLayer: dataLayer,
+//       symbolizer: new LineSymbolizer({
+//         opacity: 0.5,
+//         color: color,
+//         width: 2,
+//       }),
+//       filter: (z, f) => {
+//         return f.geomType == GeomType.Line;
+//       },
+//     },
+//     {
+//       dataSource: dataSource,
+//       dataLayer: dataLayer,
+//       symbolizer: new PolygonSymbolizer({
+//         opacity: 0.5,
+//         fill: color,
+//         stroke: color,
+//         width: 1,
+//       }),
+//       filter: (z, f) => {
+//         return f.geomType == GeomType.Polygon;
+//       },
+//     },
+//   ];
+// };
 
-let xray_rules = (
-  prepared_tilemap: Map<string, PreparedTile>,
-  xray: XraySelection
-): Rule[] => {
-  var rules: Rule[] = [];
-  for (var [dataSource, tile] of prepared_tilemap) {
-    for (var dataLayer of tile.data.keys()) {
-      if (dataSource === xray.dataSource && dataLayer === xray.dataLayer) {
-        // do nothing since the rule should go last
-      } else {
-        rules = rules.concat(xray_symbolizers(dataSource, dataLayer, "#999"));
-      }
-    }
-  }
+// let xray_rules = (
+//   prepared_tilemap: Map<string, PreparedTile>,
+//   xray: XraySelection
+// ): Rule[] => {
+//   var rules: Rule[] = [];
+//   for (var [dataSource, tile] of prepared_tilemap) {
+//     for (var dataLayer of tile.data.keys()) {
+//       if (dataSource === xray.dataSource && dataLayer === xray.dataLayer) {
+//         // do nothing since the rule should go last
+//       } else {
+//         rules = rules.concat(xray_symbolizers(dataSource, dataLayer, "#999"));
+//       }
+//     }
+//   }
 
-  rules = rules.concat(
-    xray_symbolizers(xray.dataSource || "", xray.dataLayer, "steelblue")
-  );
-  return rules;
-};
+//   rules = rules.concat(
+//     xray_symbolizers(xray.dataSource || "", xray.dataLayer, "steelblue")
+//   );
+//   return rules;
+// };
 
 export function painter(
   ctx: CanvasRenderingContext2D,
   z: number,
-  prepared_tilemaps: Map<string, PreparedTile>[],
+  prepared_tilemap: Map<string, PreparedTile[]>,
   label_data: Index,
   rules: Rule[],
   bbox: Bbox,
   origin: Point,
   clip: boolean,
   debug: string,
-  xray: XraySelection
+  xray?: XraySelection
 ) {
   let start = performance.now();
   ctx.save();
   ctx.miterLimit = 2;
 
-  for (var prepared_tilemap of prepared_tilemaps) {
-    // find the smallest of all the origins
-    // if (clip) {
-    //   ctx.beginPath();
-    //   let minX = Math.max(po.x - origin.x, bbox.minX - origin.x) - 0.5;
-    //   let minY = Math.max(po.y - origin.y, bbox.minY - origin.y) - 0.5;
-    //   let maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x) + 0.5;
-    //   let maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y) + 0.5;
-    //   ctx.rect(minX, minY, maxX - minX, maxY - minY);
-    //   ctx.clip();
-    // }
-    // if (clip) {
-    //   // small fudge factor in static mode to fix seams
-    //   ctx.translate(dim / 2, dim / 2);
-    //   ctx.scale(1 + 1 / dim, 1 + 1 / dim);
-    //   ctx.translate(-dim / 2, -dim / 2);
-    // }
+  // find the smallest of all the origins
+  // if (clip) {
+  //   ctx.beginPath();
+  //   let minX = Math.max(po.x - origin.x, bbox.minX - origin.x) - 0.5;
+  //   let minY = Math.max(po.y - origin.y, bbox.minY - origin.y) - 0.5;
+  //   let maxX = Math.min(po.x - origin.x + dim, bbox.maxX - origin.x) + 0.5;
+  //   let maxY = Math.min(po.y - origin.y + dim, bbox.maxY - origin.y) + 0.5;
+  //   ctx.rect(minX, minY, maxX - minX, maxY - minY);
+  //   ctx.clip();
+  // }
+  // if (clip) {
+  //   // small fudge factor in static mode to fix seams
+  //   ctx.translate(dim / 2, dim / 2);
+  //   ctx.scale(1 + 1 / dim, 1 + 1 / dim);
+  //   ctx.translate(-dim / 2, -dim / 2);
+  // }
 
-    if (xray) {
-      rules = xray_rules(prepared_tilemap, xray);
-    }
+  // if (xray) {
+  //   rules = xray_rules(prepared_tilemap, xray);
+  // }
 
-    for (var rule of rules) {
-      if (rule.minzoom && z < rule.minzoom) continue;
-      if (rule.maxzoom && z > rule.maxzoom) continue;
-      let prepared_tile = prepared_tilemap.get(rule.dataSource || "");
-      if (!prepared_tile) continue;
+  for (var rule of rules) {
+    if (rule.minzoom && z < rule.minzoom) continue;
+    if (rule.maxzoom && z > rule.maxzoom) continue;
+    let prepared_tiles = prepared_tilemap.get(rule.dataSource || "");
+    if (!prepared_tiles) continue;
+    for (let prepared_tile of prepared_tiles) {
       var layer = prepared_tile.data.get(rule.dataLayer);
       if (layer === undefined) continue;
       if (rule.symbolizer.before) rule.symbolizer.before(ctx, prepared_tile.z);
@@ -170,6 +170,7 @@ export function painter(
     }
   }
 
+  // TODO fix me on static
   if (clip) {
     ctx.beginPath();
     ctx.rect(

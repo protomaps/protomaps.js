@@ -112,7 +112,7 @@ const leafletLayer = (options: any): any => {
       let tile_responses = await Promise.all(
         promises.map((o) => {
           return o.promise.then(
-            (v: any) => {
+            (v: PreparedTile[]) => {
               return { status: "fulfilled", value: v, key: o.key };
             },
             (error: Error) => {
@@ -122,10 +122,10 @@ const leafletLayer = (options: any): any => {
         })
       );
 
-      let prepared_tilemap = new Map<string, PreparedTile>();
+      let prepared_tilemap = new Map<string, PreparedTile[]>();
       for (const tile_response of tile_responses) {
         if (tile_response.status === "fulfilled") {
-          prepared_tilemap.set(tile_response.key, tile_response.value);
+          prepared_tilemap.set(tile_response.key, [tile_response.value]);
         }
       }
 
@@ -184,7 +184,7 @@ const leafletLayer = (options: any): any => {
       painting_time = painter(
         ctx,
         coords.z,
-        [prepared_tilemap],
+        prepared_tilemap,
         label_data,
         this.paint_rules,
         bbox,
@@ -200,12 +200,26 @@ const leafletLayer = (options: any): any => {
         ctx.font = "600 12px sans-serif";
         ctx.fillText(coords.z + " " + coords.x + " " + coords.y, 4, 14);
 
+        ctx.font = "12px sans-serif";
+        let ypos = 28;
+        for (let [k, v] of prepared_tilemap) {
+          let dt = v[0].data_tile;
+          ctx.fillText(
+            k + (k ? " " : "") + dt.z + " " + dt.x + " " + dt.y,
+            4,
+            ypos
+          );
+          ypos += 14;
+        }
+
         ctx.font = "600 10px sans-serif";
         if (painting_time > 8) {
-          ctx.fillText(painting_time.toFixed() + " ms paint", 4, 42);
+          ctx.fillText(painting_time.toFixed() + " ms paint", 4, ypos);
+          ypos += 14;
         }
+
         if (layout_time > 8) {
-          ctx.fillText(layout_time.toFixed() + " ms layout", 4, 56);
+          ctx.fillText(layout_time.toFixed() + " ms layout", 4, ypos);
         }
         ctx.strokeStyle = this.debug;
 
